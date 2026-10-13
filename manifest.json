@@ -1,0 +1,18 @@
+{
+  "name": "Hora Certa",
+  "short_name": "Hora Certa",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#eef4fb",
+  "theme_color": "#1e3a8a",
+  "lang": "pt-BR",
+  "description": "Calculadora simples da última batida de ponto.",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#1e3a8a" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Hora Certa" />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="apple-touch-icon" href="icon.svg" />
+    <link rel="stylesheet" href="styles.css" />
+    <title>Hora Certa</title>
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="hero">
+        <div>
+          <span class="eyebrow">CONTROLE DE JORNADA</span>
+          <h1>Hora Certa</h1>
+          <p>Descubra a hora exata da sua última batida.</p>
+        </div>
+        <div class="clock" id="liveClock">--:--</div>
+      </section>
+
+      <section class="card settings-card">
+        <label for="dailyGoal">Meta diária</label>
+        <div class="goal-control">
+          <input id="dailyGoal" type="time" value="08:00" aria-label="Meta diária" />
+          <span>horas de trabalho</span>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="section-heading">
+          <div>
+            <span class="step">1</span>
+            <div>
+              <h2>Informe suas batidas</h2>
+              <p>Preencha os três horários já registrados.</p>
+            </div>
+          </div>
+          <button class="ghost-button" id="clearButton" type="button">Limpar</button>
+        </div>
+
+        <div class="punch-grid">
+          <label class="punch-field">
+            <span>Entrada</span>
+            <input id="entryTime" type="time" aria-label="Horário de entrada" />
+          </label>
+          <label class="punch-field">
+            <span>Saída almoço</span>
+            <input id="lunchStart" type="time" aria-label="Horário de saída para o almoço" />
+          </label>
+          <label class="punch-field">
+            <span>Retorno almoço</span>
+            <input id="lunchEnd" type="time" aria-label="Horário de retorno do almoço" />
+          </label>
+        </div>
+      </section>
+
+      <section class="result-card" id="resultCard" aria-live="polite">
+        <div class="result-topline">
+          <div>
+            <span class="step inverse">2</span>
+            <span class="result-label">PRÓXIMA BATIDA</span>
+          </div>
+          <span class="status-pill" id="statusPill">Aguardando horários</span>
+        </div>
+        <div class="result-time" id="resultTime">--:--</div>
+        <p id="resultMessage">Informe as três primeiras batidas para calcular.</p>
+        <div class="summary-row">
+          <div><span>Trabalhado até agora</span><strong id="workedSoFar">--</strong></div>
+          <div><span>Restante</span><strong id="remainingTime">--</strong></div>
+        </div>
+      </section>
+
+      <footer>Os dados ficam salvos somente neste dispositivo.</footer>
+    </main>
+    <script src="app.js"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => navigator.serviceWorker.register('sw.js'));
+      }
+    </script>
+  </body>
+</html>
