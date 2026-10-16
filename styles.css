@@ -34,6 +34,11 @@ h2 { margin: 2px 0 5px; color: #1d3157; font-size: 17px; letter-spacing: -.02em;
 .status-pill.ready { background: #d4f7e4; border-color: transparent; color: #087443; }
 .result-time { position: relative; z-index: 1; margin: 24px 0 5px; font-size: clamp(4rem, 16vw, 7rem); font-weight: 850; letter-spacing: -.09em; line-height: .95; }
 .result-card p { position: relative; z-index: 1; min-height: 21px; margin: 0 0 24px; color: #c8d9f6; font-size: 14px; }
+.alarm-control { display: flex; align-items: center; gap: 12px; position: relative; z-index: 1; margin-bottom: 22px; }
+.alarm-button { border: 0; border-radius: 12px; background: #fef08a; color: #26345a; cursor: pointer; font: inherit; font-size: 12px; font-weight: 800; padding: 11px 14px; transition: .2s; }
+.alarm-button:hover:not(:disabled) { background: #fde047; transform: translateY(-1px); }
+.alarm-button:disabled { cursor: not-allowed; opacity: .5; }
+.alarm-control span { color: #b2c8ec; font-size: 11px; }
 .summary-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; position: relative; z-index: 1; border-top: 1px solid rgba(255,255,255,.16); padding-top: 18px; }
 .summary-row div { display: grid; gap: 5px; }
 .summary-row span { color: #b2c8ec; font-size: 11px; }

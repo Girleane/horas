@@ -1,4 +1,4 @@
-const CACHE_NAME = 'hora-certa-v1';
+const CACHE_NAME = 'hora-certa-v2';
 const APP_FILES = [
   './',
   './index.html',
