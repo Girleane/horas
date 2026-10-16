@@ -17,8 +17,11 @@ let alarmTarget = null;
 let alarmTargetKey = '';
 let alarmExitMinutes = null;
 let alarmTimeoutId = null;
+let alarmLoopTimeoutId = null;
 let alarmEnabled = false;
+let alarmRinging = false;
 let alarmTriggeredKey = '';
+const alarmSources = new Set();
 
 function toMinutes(value) {
   if (!value) return null;
@@ -43,9 +46,9 @@ function getTargetDate(minutes) {
   return target;
 }
 
-function setAlarmControls({ enabled = false, status, disabled = false } = {}) {
+function setAlarmControls({ enabled = false, ringing = false, status, disabled = false } = {}) {
   alarmButton.disabled = disabled;
-  alarmButton.textContent = enabled ? 'Alarme ativado' : 'Ativar alarme sonoro';
+  alarmButton.textContent = ringing ? 'Desligar alarme' : enabled ? 'Alarme ativado' : 'Ativar alarme sonoro';
   alarmStatus.textContent = status;
 }
 
@@ -54,6 +57,18 @@ function stopAlarmTimer() {
     clearTimeout(alarmTimeoutId);
     alarmTimeoutId = null;
   }
+}
+
+function stopAlarmSound() {
+  alarmRinging = false;
+  if (alarmLoopTimeoutId !== null) {
+    clearTimeout(alarmLoopTimeoutId);
+    alarmLoopTimeoutId = null;
+  }
+  alarmSources.forEach((source) => {
+    try { source.stop(); } catch { /* O som já pode ter terminado. */ }
+  });
+  alarmSources.clear();
 }
 
 function playAlarm() {
@@ -65,6 +80,7 @@ function playAlarm() {
 
   audioContext ||= new AudioContextClass();
   const start = () => {
+    if (!alarmRinging) return;
     const now = audioContext.currentTime;
     const volume = 0.48;
     const toneDuration = 0.42;
@@ -77,9 +93,15 @@ function playAlarm() {
       gain.gain.exponentialRampToValueAtTime(volume, now + offset + 0.03);
       gain.gain.exponentialRampToValueAtTime(0.0001, now + offset + toneDuration);
       oscillator.connect(gain).connect(audioContext.destination);
+      alarmSources.add(oscillator);
+      oscillator.addEventListener('ended', () => alarmSources.delete(oscillator), { once: true });
       oscillator.start(now + offset);
       oscillator.stop(now + offset + toneDuration + 0.02);
     });
+    alarmLoopTimeoutId = window.setTimeout(() => {
+      alarmLoopTimeoutId = null;
+      if (alarmRinging) playAlarm();
+    }, 6200);
   };
 
   if (audioContext.state === 'suspended') {
@@ -97,9 +119,10 @@ function checkAlarm() {
   if (Date.now() >= alarmTarget.getTime()) {
     alarmTriggeredKey = alarmTargetKey;
     alarmEnabled = false;
+    alarmRinging = true;
     stopAlarmTimer();
     playAlarm();
-    setAlarmControls({ status: 'Hora de registrar a saída!', disabled: true });
+    setAlarmControls({ ringing: true, status: 'Hora de registrar a saída! Toque para desligar o alarme.', disabled: false });
     return;
   }
 
@@ -115,12 +138,15 @@ function prepareAlarm(exitMinutes) {
   alarmTarget = target;
   alarmExitMinutes = exitMinutes;
   if (changed) {
+    stopAlarmSound();
     alarmTargetKey = targetKey;
     alarmTriggeredKey = '';
     alarmEnabled = false;
   }
 
-  if (alarmEnabled) {
+  if (alarmRinging) {
+    setAlarmControls({ ringing: true, status: 'Hora de registrar a saída! Toque para desligar o alarme.', disabled: false });
+  } else if (alarmEnabled) {
     setAlarmControls({ enabled: true, status: `Alarme programado para ${fromMinutes(exitMinutes)}.`, disabled: false });
     checkAlarm();
   } else if (Date.now() >= target.getTime()) {
@@ -141,6 +167,7 @@ function calculate() {
 
   if (values.some((value) => value === null)) {
     stopAlarmTimer();
+    stopAlarmSound();
     alarmTarget = null;
     alarmTargetKey = '';
     alarmExitMinutes = null;
@@ -156,6 +183,7 @@ function calculate() {
   }
   if (!(entry <= lunchStart && lunchStart <= lunchEnd)) {
     stopAlarmTimer();
+    stopAlarmSound();
     alarmTarget = null;
     alarmTargetKey = '';
     alarmExitMinutes = null;
@@ -199,6 +227,12 @@ document.querySelector('#clearButton').addEventListener('click', () => {
 });
 
 alarmButton.addEventListener('click', () => {
+  if (alarmRinging) {
+    stopAlarmSound();
+    alarmTriggeredKey = alarmTargetKey;
+    setAlarmControls({ status: 'Alarme desligado.', disabled: true });
+    return;
+  }
   if (!alarmTarget || alarmExitMinutes === null) return;
 
   const AudioContextClass = window.AudioContext || window.webkitAudioContext;
