@@ -66,17 +66,19 @@ function playAlarm() {
   audioContext ||= new AudioContextClass();
   const start = () => {
     const now = audioContext.currentTime;
-    [0, 0.28, 0.56, 0.84].forEach((offset, index) => {
+    const volume = 0.48;
+    const toneDuration = 0.42;
+    Array.from({ length: 12 }, (_, index) => index * 0.5).forEach((offset, index) => {
       const oscillator = audioContext.createOscillator();
       const gain = audioContext.createGain();
       oscillator.type = 'sine';
       oscillator.frequency.value = index % 2 === 0 ? 880 : 660;
       gain.gain.setValueAtTime(0.0001, now + offset);
-      gain.gain.exponentialRampToValueAtTime(0.28, now + offset + 0.02);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + offset + 0.22);
+      gain.gain.exponentialRampToValueAtTime(volume, now + offset + 0.03);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + offset + toneDuration);
       oscillator.connect(gain).connect(audioContext.destination);
       oscillator.start(now + offset);
-      oscillator.stop(now + offset + 0.24);
+      oscillator.stop(now + offset + toneDuration + 0.02);
     });
   };
 
